@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Diagnóstico Estratégico Inteligente para PyMEs - Descubre por qué tu negocio no escala">
+  <title>Escala IQ™ - Diagnóstico Estratégico Inteligente</title>
+  
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
+    }
+    
+    .logo-container {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+    
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+    
+    const EscalaIQApp = () => {
+      const [stage, setStage] = useState('welcome');
+      const [currentQuestion, setCurrentQuestion] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [privacyAccepted, setPrivacyAccepted] = useState(false);
+      const [marketingAccepted, setMarketingAccepted] = useState(false);
+      const [emailSending, setEmailSending] = useState(false);
+      const [emailSent, setEmailSent] = useState(false);
+      const [userData, setUserData] = useState({
+        name: '',
+        company: '',
+        industry: '',
+        revenue: '',
+        employees: '',
+        email: '',
+        phone: ''
+      });
+
+      // Initialize EmailJS
+      React.useEffect(() => {
+        if (typeof emailjs !== 'undefined') {
+          emailjs.init('s5nppWZkj52lmF4');
+          console.log('✅ EmailJS inicializado');
+        }
+      }, []);
+
+      const questions = [
+        // ESTRATEGIA
+        {
+          id: 'q1',
+          area: 'Estrategia',
+          question: '¿Tu empresa cuenta con Misión, Visión y Valores documentados y conocidos por todo el equipo?',
+          options: [
+            { value: 0, label: 'No tenemos nada documentado' },
+            { value: 25, label: 'Está en la mente del dueño, pero no escrito' },
+            { value: 50, label: 'Está escrito pero nadie lo conoce' },
+            { value: 75, label: 'Documentado y algunos lo conocen' },
+            { value: 100, label: 'Documentado, todos lo conocen y lo viven' }
+          ]
+        },
+        {
+          id: 'q2',
+          area: 'Estrategia',
+          question: '¿Tienes objetivos específicos y medibles para los próximos 12 meses?',
+          options: [
+            { value: 0, label: 'No tenemos objetivos claros' },
+            { value: 25, label: 'Tenemos ideas vagas de lo que queremos' },
+            { value: 50, label: 'Tenemos objetivos pero no son medibles' },
+            { value: 75, label: 'Objetivos definidos pero no se revisan' },
+            { value: 100, label: 'Objetivos SMART con seguimiento mensual' }
+          ]
+        },
+        {
+          id: 'q3',
+          area: 'Estrategia',
+          question: '¿Los roles y responsabilidades están claramente definidos en tu organización?',
+          options: [
+            { value: 0, label: 'Cada quien hace de todo' },
+            { value: 25, label: 'Roles verbales, no documentados' },
+            { value: 50, label: 'Algunos roles están definidos' },
+            { value: 75, label: 'Roles definidos pero se traslapan' },
+            { value: 100, label: 'Organigrama claro con descripción de puestos' }
+          ]
+        },
+        // FINANZAS
+        {
+          id: 'q4',
+          area: 'Finanzas',
+          question: '¿Conoces con exactitud el costo real de cada producto/servicio que vendes?',
+          options: [
+            { value: 0, label: 'No lo sé con certeza' },
+            { value: 25, label: 'Tengo una idea aproximada' },
+            { value: 50, label: 'Conozco costos directos, no indirectos' },
+            { value: 75, label: 'Tengo costos pero no los actualizo' },
+            { value: 100, label: 'Costeo detallado y actualizado mensualmente' }
+          ]
+        },
+        {
+          id: 'q5',
+          area: 'Finanzas',
+          question: '¿Cómo llevas el control de tu flujo de caja?',
+          options: [
+            { value: 0, label: 'Veo el saldo bancario cuando necesito' },
+            { value: 25, label: 'Registro en cuaderno/Excel básico' },
+            { value: 50, label: 'Excel con histórico pero sin proyección' },
+            { value: 75, label: 'Sistema contable pero no lo reviso seguido' },
+            { value: 100, label: 'Flujo proyectado a 90 días con análisis semanal' }
+          ]
+        },
+        {
+          id: 'q6',
+          area: 'Finanzas',
+          question: '¿Tienes una estrategia fiscal para optimizar impuestos legalmente?',
+          options: [
+            { value: 0, label: 'Pago lo que mi contador dice sin preguntar' },
+            { value: 25, label: 'Sé que hay deducciones pero no las uso' },
+            { value: 50, label: 'Uso algunas deducciones básicas' },
+            { value: 75, label: 'Planeo con mi contador pero reactivamente' },
+            { value: 100, label: 'Estrategia fiscal anual con optimización proactiva' }
+          ]
+        },
+        // OPERACIONES
+        {
+          id: 'q7',
+          area: 'Operaciones',
+          question: '¿Qué porcentaje de tus procesos clave están documentados?',
+          options: [
+            { value: 0, label: 'Nada está documentado (0%)' },
+            { value: 25, label: 'Muy poco documentado (1-25%)' },
+            { value: 50, label: 'Algunos procesos (26-50%)' },
+            { value: 75, label: 'La mayoría (51-75%)' },
+            { value: 100, label: 'Todo documentado y actualizado (76-100%)' }
+          ]
+        },
+        {
+          id: 'q8',
+          area: 'Operaciones',
+          question: '¿Con qué frecuencia ocurren errores o reprocesos en tu operación?',
+          options: [
+            { value: 0, label: 'Constantemente (varias veces por semana)' },
+            { value: 25, label: 'Frecuentemente (al menos 1 vez por semana)' },
+            { value: 50, label: 'Ocasionalmente (1-2 veces al mes)' },
+            { value: 75, label: 'Rara vez (menos de 1 vez al mes)' },
+            { value: 100, label: 'Casi nunca (sistema de calidad implementado)' }
+          ]
+        },
+        {
+          id: 'q9',
+          area: 'Operaciones',
+          question: '¿Qué tan digitalizada está tu operación?',
+          options: [
+            { value: 0, label: 'Todo en papel o WhatsApp' },
+            { value: 25, label: 'Excel y archivos compartidos' },
+            { value: 50, label: 'Algunas herramientas digitales básicas' },
+            { value: 75, label: 'Software especializado en 1-2 áreas' },
+            { value: 100, label: 'Sistema integrado (ERP/CRM)' }
+          ]
+        },
+        // COMERCIAL
+        {
+          id: 'q10',
+          area: 'Comercial',
+          question: '¿Tienes claramente definida tu propuesta de valor vs. competencia?',
+          options: [
+            { value: 0, label: 'No sé qué nos diferencia realmente' },
+            { value: 25, label: 'Tengo una idea pero no está clara' },
+            { value: 50, label: 'Diferenciadores definidos pero no comunicados' },
+            { value: 75, label: 'Propuesta clara pero no todos la conocen' },
+            { value: 100, label: 'Propuesta de valor clara, documentada y vivida' }
+          ]
+        },
+        {
+          id: 'q11',
+          area: 'Comercial',
+          question: '¿Cómo mides la rentabilidad de cada cliente o proyecto?',
+          options: [
+            { value: 0, label: 'No lo medimos' },
+            { value: 25, label: 'Solo veo si ganamos o perdemos en total' },
+            { value: 50, label: 'Mido ingresos por cliente, no rentabilidad' },
+            { value: 75, label: 'Análisis de rentabilidad ocasional' },
+            { value: 100, label: 'Dashboard de rentabilidad por cliente actualizado' }
+          ]
+        },
+        {
+          id: 'q12',
+          area: 'Comercial',
+          question: '¿Tienes una estrategia definida de retención y fidelización de clientes?',
+          options: [
+            { value: 0, label: 'No tenemos estrategia de retención' },
+            { value: 25, label: 'Atención reactiva cuando el cliente pide' },
+            { value: 50, label: 'Seguimiento básico post-venta' },
+            { value: 75, label: 'Programa de seguimiento estructurado' },
+            { value: 100, label: 'Estrategia omnicanal con métricas de NPS/LTV' }
+          ]
+        },
+        // RRHH
+        {
+          id: 'q13',
+          area: 'RRHH',
+          question: '¿Tu equipo cuenta con descripciones de puesto y perfiles definidos?',
+          options: [
+            { value: 0, label: 'No hay perfiles definidos' },
+            { value: 25, label: 'Perfiles mentales, no documentados' },
+            { value: 50, label: 'Algunos puestos tienen descripción' },
+            { value: 75, label: 'Todos tienen descripción pero desactualizada' },
+            { value: 100, label: 'Perfiles actualizados con competencias claras' }
+          ]
+        },
+        {
+          id: 'q14',
+          area: 'RRHH',
+          question: '¿Inviertes en capacitación y desarrollo de tu equipo?',
+          options: [
+            { value: 0, label: 'No invertimos en capacitación' },
+            { value: 25, label: 'Capacitación esporádica sin plan' },
+            { value: 50, label: 'Capacitación básica cuando hay necesidad' },
+            { value: 75, label: 'Plan anual de capacitación básico' },
+            { value: 100, label: 'Programa estructurado de desarrollo con presupuesto' }
+          ]
+        },
+        {
+          id: 'q15',
+          area: 'RRHH',
+          question: '¿Qué tan dependiente es tu negocio de ti como dueño?',
+          options: [
+            { value: 0, label: 'Todo depende de mí, no puede funcionar sin mí' },
+            { value: 25, label: 'Puedo ausentarme 1-2 días máximo' },
+            { value: 50, label: 'Puedo ausentarme 1 semana con supervisión' },
+            { value: 75, label: 'Funciona bien 2-3 semanas sin mí' },
+            { value: 100, label: 'Opera autónomamente, yo hago estrategia' }
+          ]
+        }
+      ];
+
+      const calculateResults = () => {
+        const areaScores = {
+          'Estrategia': [],
+          'Finanzas': [],
+          'Operaciones': [],
+          'Comercial': [],
+          'RRHH': []
+        };
+
+        questions.forEach(q => {
+          if (answers[q.id] !== undefined) {
+            areaScores[q.area].push(answers[q.id]);
+          }
+        });
+
+        const areaAverages = {};
+        Object.keys(areaScores).forEach(area => {
+          const scores = areaScores[area];
+          areaAverages[area] = scores.length > 0 
+            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+            : 0;
+        });
+
+        const overallScore = Math.round(
+          Object.values(areaAverages).reduce((a, b) => a + b, 0) / Object.keys(areaAverages).length
+        );
+
+        return { areaAverages, overallScore };
+      };
+
+      const identifyLeaks = (areaAverages) => {
+        const leaks = [];
+        
+        if (areaAverages['Finanzas'] < 60) {
+          leaks.push({
+            title: 'Ceguera Financiera',
+            description: 'Estás tomando decisiones sin datos reales de costos y rentabilidad',
+            impact: 'Pérdida estimada: 15-25% de utilidad potencial'
+          });
+        }
+
+        if (areaAverages['Operaciones'] < 60) {
+          leaks.push({
+            title: 'Caos Operativo',
+            description: 'Procesos manuales y reprocesos están consumiendo tiempo y dinero',
+            impact: 'Pérdida estimada: 20-30% de productividad'
+          });
+        }
+
+        if (areaAverages['Estrategia'] < 60) {
+          leaks.push({
+            title: 'Sin Rumbo Estratégico',
+            description: 'La falta de objetivos claros genera esfuerzos dispersos',
+            impact: 'Oportunidades de crecimiento desaprovechadas'
+          });
+        }
+
+        if (areaAverages['Comercial'] < 60) {
+          leaks.push({
+            title: 'Ventas Sin Estrategia',
+            description: 'Vendes sin conocer tu propuesta de valor ni rentabilidad real',
+            impact: 'Clientes no rentables consumiendo recursos'
+          });
+        }
+
+        if (areaAverages['RRHH'] < 60) {
+          leaks.push({
+            title: 'Talento Desperdiciado',
+            description: 'Personal sin perfiles claros ni capacitación estructurada',
+            impact: 'Alta rotación y baja productividad'
+          });
+        }
+
+        return leaks.slice(0, 3);
+      };
+
+      const getMaturityLevel = (score) => {
+        if (score < 40) return { level: 'Inicial', color: 'text-red-600', bgColor: 'bg-red-100' };
+        if (score < 60) return { level: 'En Desarrollo', color: 'text-orange-600', bgColor: 'bg-orange-100' };
+        if (score < 75) return { level: 'Estructurado', color: 'text-yellow-600', bgColor: 'bg-yellow-100' };
+        if (score < 90) return { level: 'Avanzado', color: 'text-blue-600', bgColor: 'bg-blue-100' };
+        return { level: 'Excelencia', color: 'text-green-600', bgColor: 'bg-green-100' };
+      };
+
+      const sendEmails = async () => {
+        const { areaAverages, overallScore } = calculateResults();
+        const leaks = identifyLeaks(areaAverages);
+        const maturity = getMaturityLevel(overallScore);
+
+        const weakAreas = Object.entries(areaAverages)
+          .filter(([_, score]) => score < 60)
+          .map(([area, score]) => `${area}: ${score}/100`)
+          .join('\n');
+
+        const leaksText = leaks.map((leak, idx) => 
+          `${idx + 1}. ${leak.title}\n   ${leak.description}\n   ${leak.impact}`
+        ).join('\n\n');
+
+        const opportunityRange = userData.revenue === '0-5M' ? { min: '60,000', max: '150,000' } :
+                                userData.revenue === '5-20M' ? { min: '300,000', max: '800,000' } :
+                                userData.revenue === '20-50M' ? { min: '800,000', max: '2,000,000' } :
+                                { min: '2,000,000', max: '5,000,000' };
+
+        const priority = overallScore < 50 ? 'ALTA - Contactar en 24 horas' :
+                        overallScore < 70 ? 'MEDIA - Contactar en 48 horas' :
+                        'NORMAL - Contactar en 72 horas';
+
+        const recommendation = overallScore < 50 ? 'Cliente en etapa crítica. Necesita intervención urgente. Enfatizar ROI rápido.' :
+                              overallScore < 70 ? 'Cliente con bases pero sin estructura. Ideal para implementación completa.' :
+                              'Cliente maduro. Enfoque en optimización y crecimiento acelerado.';
+
+        try {
+          // Email al cliente
+          await emailjs.send('service_ge68mlf', 'template_igyg8z2', {
+            to_email: userData.email,
+            user_email: userData.email,
+            user_name: userData.name,
+            company_name: userData.company,
+            score: String(overallScore),
+            maturity_level: maturity.level,
+            leaks: leaksText,
+            opportunity_min: String(opportunityRange.min),
+            opportunity_max: String(opportunityRange.max),
+            roadmap: 'Ver reporte completo'
+          });
+
+          // Email interno
+          await emailjs.send('service_ge68mlf', 'template_t271ajb', {
+            user_name: userData.name || 'No proporcionado',
+            company_name: userData.company || 'No proporcionada',
+            user_email: userData.email || 'No proporcionado',
+            user_phone: userData.phone || 'No proporcionado',
+            industry: userData.industry || 'No especificada',
+            revenue: userData.revenue || 'No especificada',
+            employees: userData.employees || 'No especificado',
+            score: String(overallScore),
+            maturity_level: maturity.level,
+            weak_areas: weakAreas || 'Todas en buen estado',
+            priority: priority,
+            recommendation: recommendation,
+            submission_date: new Date().toLocaleString('es-MX')
+          });
+
+          setEmailSent(true);
+          return true;
+        } catch (error) {
+          console.error('Error:', error);
+          return false;
+        }
+      };
+
+      const handleNext = async () => {
+        if (currentQuestion < questions.length - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+        } else {
+          setStage('results');
+          await sendEmails();
+        }
+      };
+
+      const startDiagnostic = () => {
+        if (userData.name && userData.company && userData.email && privacyAccepted) {
+          setStage('questionnaire');
+        }
+      };
+
+      // RENDER LOGIC
+      if (stage === 'welcome') {
+        return (
+          <div className="min-h-screen gradient-bg p-4">
+            <div className="max-w-4xl mx-auto py-8">
+              <div className="text-center mb-8">
+                <div className="logo-container mb-6">
+                  <img 
+                    src="https://i.postimg.cc/7Y5H6jvw/Disen-o-sin-ti-tulo-1.png" 
+                    alt="Escala - Estrategias para el Éxito" 
+                    className="w-full h-auto"
+                  />
+                </div>
+                <h2 className="text-3xl font-bold mb-2 text-blue-900">
+                  Escala IQ™
+                </h2>
+                <p className="text-lg text-gray-600">Diagnóstico Estratégico Inteligente</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 className="text-2xl font-bold mb-4 text-blue-900">
+                  ¿Atrapado en el día a día de tu Empresa?
+                </h2>
+                <p className="text-lg text-gray-700 mb-6">
+                  Descubre en <strong>10 minutos</strong> por qué tu negocio no escala y obtén un mapa claro para transformar tu operación.
+                </p>
+
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="Tu Nombre Completo *"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      value={userData.name}
+                      onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Nombre de tu Empresa *"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      value={userData.company}
+                      onChange={(e) => setUserData({ ...userData, company: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      value={userData.industry}
+                      onChange={(e) => setUserData({ ...userData, industry: e.target.value })}
+                    >
+                      <option value="">Selecciona tu Industria</option>
+                      <option value="servicios">Servicios Profesionales</option>
+                      <option value="ong">ONG / Asociación Civil</option>
+                      <option value="retail">Retail / Comercio</option>
+                      <option value="manufactura">Manufactura</option>
+                      <option value="restaurante">Restaurante / Alimentos</option>
+                      <option value="otro">Otro</option>
+                    </select>
+
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      value={userData.revenue}
+                      onChange={(e) => setUserData({ ...userData, revenue: e.target.value })}
+                    >
+                      <option value="">Facturación Anual (MXN)</option>
+                      <option value="0-5M">Menos de $5M</option>
+                      <option value="5-20M">$5M - $20M</option>
+                      <option value="20-50M">$20M - $50M</option>
+                      <option value="50-100M">$50M - $100M</option>
+                    </select>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      value={userData.employees}
+                      onChange={(e) => setUserData({ ...userData, employees: e.target.value })}
+                    >
+                      <option value="">Número de Empleados</option>
+                      <option value="1-20">1 - 20</option>
+                      <option value="21-50">21 - 50</option>
+                      <option value="51-100">51 - 100</option>
+                      <option value="100+">Más de 100</option>
+                    </select>
+
+                    <input
+                      type="email"
+                      placeholder="Email *"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      value={userData.email}
+                      onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                    />
+                  </div>
+
+                  <input
+                    type="tel"
+                    placeholder="Teléfono (WhatsApp)"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                    value={userData.phone}
+                    onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                  />
+
+                  <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={privacyAccepted}
+                        onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                        className="mt-1 w-5 h-5"
+                      />
+                      <span className="text-sm text-gray-700">
+                        <strong>*Acepto el Aviso de Privacidad.</strong> Entiendo que mis datos serán utilizados exclusivamente para elaborar mi diagnóstico estratégico.
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={marketingAccepted}
+                        onChange={(e) => setMarketingAccepted(e.target.checked)}
+                        className="mt-1 w-5 h-5"
+                      />
+                      <span className="text-sm text-gray-700">
+                        Autorizo a ESCALA a enviarme contenido de valor (infográficos, videos, artículos).
+                      </span>
+                    </label>
+                  </div>
+
+                  <button
+                    onClick={startDiagnostic}
+                    disabled={!userData.name || !userData.company || !userData.email || !privacyAccepted}
+                    className="w-full py-4 bg-blue-900 text-white font-bold rounded-lg disabled:opacity-50"
+                  >
+                    Iniciar Diagnóstico Gratuito →
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-center text-gray-600">
+                <p className="text-sm">📧 contacto@escalaestexito.com.mx</p>
+                <p className="text-sm">📱 +52 55 98 26 7884</p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Questionnaire stage
+      if (stage === 'questionnaire') {
+        const progress = ((currentQuestion + 1) / questions.length) * 100;
+        const currentQ = questions[currentQuestion];
+        const isAnswered = answers[currentQ.id] !== undefined;
+
+        return (
+          <div className="min-h-screen gradient-bg p-4">
+            <div className="max-w-3xl mx-auto py-8">
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-semibold text-blue-900">
+                    Pregunta {currentQuestion + 1} de {questions.length}
+                  </span>
+                  <span className="text-sm text-gray-600">{Math.round(progress)}% completado</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="h-3 bg-blue-900 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="mb-2">
+                  <span className="inline-block px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-900">
+                    {currentQ.area}
+                  </span>
+                </div>
+
+                <h2 className="text-2xl font-bold mb-8 text-blue-900">
+                  {currentQ.question}
+                </h2>
+
+                <div className="space-y-3">
+                  {currentQ.options.map((option, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setAnswers({ ...answers, [currentQ.id]: option.value })}
+                      className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                        answers[currentQ.id] === option.value
+                          ? 'border-blue-900 bg-blue-50'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      <span className="font-medium text-gray-700">{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-6">
+                <button
+                  onClick={() => setCurrentQuestion(currentQuestion - 1)}
+                  disabled={currentQuestion === 0}
+                  className="px-6 py-3 text-gray-600 font-semibold rounded-lg border-2 border-gray-300 disabled:opacity-50"
+                >
+                  ← Anterior
+                </button>
+
+                <button
+                  onClick={handleNext}
+                  disabled={!isAnswered}
+                  className="px-8 py-3 bg-blue-900 text-white font-bold rounded-lg disabled:opacity-50"
+                >
+                  {currentQuestion === questions.length - 1 ? 'Ver Resultados' : 'Siguiente'} →
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Results stage
+      if (stage === 'results') {
+        const { areaAverages, overallScore } = calculateResults();
+        const leaks = identifyLeaks(areaAverages);
+        const maturity = getMaturityLevel(overallScore);
+
+        return (
+          <div className="min-h-screen gradient-bg p-4">
+            <div className="max-w-5xl mx-auto py-8">
+              <div className="text-center mb-8">
+                <div className="logo-container mb-4">
+                  <img 
+                    src="https://i.postimg.cc/7Y5H6jvw/Disen-o-sin-ti-tulo-1.png" 
+                    alt="Escala Logo" 
+                    className="w-full h-auto"
+                  />
+                </div>
+                <h1 className="text-3xl font-bold mb-2 text-blue-900">
+                  Tu Diagnóstico Escala IQ™
+                </h1>
+                <p className="text-xl text-gray-600">
+                  {userData.company} - {userData.name}
+                </p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8 mb-8 text-center">
+                <div className="mb-4">
+                  <div className={`inline-block px-6 py-2 rounded-full text-lg font-bold ${maturity.bgColor} ${maturity.color}`}>
+                    {maturity.level}
+                  </div>
+                </div>
+                <div className="text-7xl font-bold mb-2 text-blue-900">
+                  {overallScore}
+                </div>
+                <p className="text-xl text-gray-600">Escala IQ Score</p>
+                <p className="text-gray-500 mt-2">De 100 puntos posibles</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 className="text-2xl font-bold mb-6 text-blue-900">
+                  Análisis por Área
+                </h2>
+                <div className="space-y-4">
+                  {Object.entries(areaAverages).map(([area, score]) => (
+                    <div key={area}>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold text-gray-700">{area}</span>
+                        <span className="font-bold" style={{ color: score < 60 ? '#DC2626' : score < 75 ? '#F59E0B' : '#1B3A6D' }}>
+                          {score}/100
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="h-3 rounded-full transition-all"
+                          style={{
+                            width: `${score}%`,
+                            backgroundColor: score < 60 ? '#DC2626' : score < 75 ? '#F59E0B' : '#1B3A6D'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <h2 className="text-2xl font-bold mb-2 text-blue-900">
+                  🚨 Tus 3 Principales Fugas de Capital
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Estos son los problemas críticos que están frenando tu crecimiento
+                </p>
+                
+                <div className="space-y-4">
+                  {leaks.map((leak, idx) => (
+                    <div key={idx} className="border-l-4 border-red-500 bg-red-50 p-4 rounded-r-lg">
+                      <h3 className="font-bold text-lg text-gray-800 mb-1">{leak.title}</h3>
+                      <p className="text-gray-700 mb-2">{leak.description}</p>
+                      <p className="text-sm font-semibold text-red-700">💸 {leak.impact}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-red-500 to-orange-500 rounded-xl shadow-lg p-8 text-white text-center">
+                <h2 className="text-3xl font-bold mb-4">
+                  🎯 Da el Siguiente Paso
+                </h2>
+                <p className="text-xl mb-6">
+                  Agenda tu <strong>Sesión Estratégica de 45 minutos</strong> sin costo
+                </p>
+                <p className="mb-6 text-lg">
+                  En esta sesión profundizaremos en tu diagnóstico y diseñaremos un plan de acción específico para {userData.company}
+                </p>
+                
+                <button
+                  onClick={() => window.location.href = 'https://www.escalaestexito.com.mx'}
+                  className="bg-white text-blue-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all"
+                >
+                  Agendar Sesión Estratégica Gratuita →
+                </button>
+
+                <p className="text-sm mt-4 opacity-90">
+                  {emailSent ? '✅ Reporte enviado a ' + userData.email : '📧 Recibirás tu reporte en ' + userData.email}
+                </p>
+              </div>
+
+              <div className="bg-white rounded-lg shadow p-6 mt-8">
+                <div className="flex flex-wrap justify-center gap-6 text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <span>📱</span>
+                    <a href="https://wa.me/5255982678884" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      +52 55 98 26 7884 (WhatsApp)
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>📧</span>
+                    <a href="mailto:contacto@escalaestexito.com.mx" className="hover:underline">contacto@escalaestexito.com.mx</a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center mt-8 text-gray-600">
+                <p className="font-semibold mb-2">Escala, Estrategias para el Éxito S.A.S. de C.V.</p>
+                <p className="text-sm">Metodología avalada ante SEP-CONOCER</p>
+                <p className="text-sm">+$1,600 millones movilizados en trayectoria</p>
+                <p className="text-sm mt-4">
+                  <a href="https://www.escalaestexito.com.mx" target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-900">
+                    www.escalaestexito.com.mx
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return null;
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<EscalaIQApp />);
+  </script>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <script>
+    // Initialize Lucide icons
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
