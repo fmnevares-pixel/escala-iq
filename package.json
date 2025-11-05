@@ -1,0 +1,8 @@
+{
+  "name": "escala-iq",
+  "version": "1.0.0",
+  "description": "Diagnóstico Estratégico Escala IQ",
+  "dependencies": {
+    "@emailjs/nodejs": "^3.0.0"
+  }
+}
