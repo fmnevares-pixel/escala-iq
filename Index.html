@@ -36,13 +36,27 @@
         display: none !important;
       }
     }
+
+    /* Estilos para el resumen de respuestas */
+    .answers-summary {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .answer-item {
+      transition: all 0.2s ease;
+    }
+
+    .answer-item:hover {
+      background-color: #F3F4F6;
+    }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
     
     const EscalaIQApp = () => {
       const [stage, setStage] = useState('welcome');
@@ -52,6 +66,7 @@
       const [marketingAccepted, setMarketingAccepted] = useState(false);
       const [emailSending, setEmailSending] = useState(false);
       const [emailSent, setEmailSent] = useState(false);
+      const [showAnswersSummary, setShowAnswersSummary] = useState(false);
       const [userData, setUserData] = useState({
         name: '',
         company: '',
@@ -63,10 +78,12 @@
       });
 
       // Initialize EmailJS
-      React.useEffect(() => {
+      useEffect(() => {
         if (typeof emailjs !== 'undefined') {
           emailjs.init('s5nppWZkj52lmF4');
-          console.log('✅ EmailJS inicializado');
+          console.log('✅ EmailJS inicializado correctamente');
+        } else {
+          console.error('❌ EmailJS no se cargó correctamente');
         }
       }, []);
 
@@ -190,72 +207,89 @@
           options: [
             { value: 0, label: 'No sé qué nos diferencia realmente' },
             { value: 25, label: 'Tengo una idea pero no está clara' },
-            { value: 50, label: 'Diferenciadores definidos pero no comunicados' },
-            { value: 75, label: 'Propuesta clara pero no todos la conocen' },
-            { value: 100, label: 'Propuesta de valor clara, documentada y vivida' }
+            { value: 50, label: 'Sé qué nos diferencia pero no lo comunico bien' },
+            { value: 75, label: 'Definida pero no todos la conocen' },
+            { value: 100, label: 'Propuesta clara, documentada y todos la viven' }
           ]
         },
         {
           id: 'q11',
           area: 'Comercial',
-          question: '¿Cómo mides la rentabilidad de cada cliente o proyecto?',
+          question: '¿Cómo es tu proceso de ventas?',
           options: [
-            { value: 0, label: 'No lo medimos' },
-            { value: 25, label: 'Solo veo si ganamos o perdemos en total' },
-            { value: 50, label: 'Mido ingresos por cliente, no rentabilidad' },
-            { value: 75, label: 'Análisis de rentabilidad ocasional' },
-            { value: 100, label: 'Dashboard de rentabilidad por cliente actualizado' }
+            { value: 0, label: 'Cada vendedor hace lo que quiere' },
+            { value: 25, label: 'Hay un proceso pero no se sigue' },
+            { value: 50, label: 'Proceso definido parcialmente' },
+            { value: 75, label: 'Proceso claro pero sin métricas' },
+            { value: 100, label: 'Proceso documentado con KPIs y seguimiento' }
           ]
         },
         {
           id: 'q12',
           area: 'Comercial',
-          question: '¿Tienes una estrategia definida de retención y fidelización de clientes?',
+          question: '¿Conoces tu costo de adquisición por cliente (CAC)?',
           options: [
-            { value: 0, label: 'No tenemos estrategia de retención' },
-            { value: 25, label: 'Atención reactiva cuando el cliente pide' },
-            { value: 50, label: 'Seguimiento básico post-venta' },
-            { value: 75, label: 'Programa de seguimiento estructurado' },
-            { value: 100, label: 'Estrategia omnicanal con métricas de NPS/LTV' }
+            { value: 0, label: 'No sé qué es eso' },
+            { value: 25, label: 'He oído del término pero no lo calculo' },
+            { value: 50, label: 'Tengo una idea aproximada' },
+            { value: 75, label: 'Lo calculo pero no lo uso para decidir' },
+            { value: 100, label: 'Lo mido, comparo con LTV y optimizo' }
           ]
         },
-        // RRHH
+        // TALENTO
         {
           id: 'q13',
-          area: 'RRHH',
-          question: '¿Tu equipo cuenta con descripciones de puesto y perfiles definidos?',
+          area: 'Talento',
+          question: '¿Cómo describes la rotación de personal en tu empresa?',
           options: [
-            { value: 0, label: 'No hay perfiles definidos' },
-            { value: 25, label: 'Perfiles mentales, no documentados' },
-            { value: 50, label: 'Algunos puestos tienen descripción' },
-            { value: 75, label: 'Todos tienen descripción pero desactualizada' },
-            { value: 100, label: 'Perfiles actualizados con competencias claras' }
+            { value: 0, label: 'Muy alta (más del 50% anual)' },
+            { value: 25, label: 'Alta (30-50% anual)' },
+            { value: 50, label: 'Moderada (15-30% anual)' },
+            { value: 75, label: 'Baja (5-15% anual)' },
+            { value: 100, label: 'Muy baja (menos del 5% anual)' }
           ]
         },
         {
           id: 'q14',
-          area: 'RRHH',
-          question: '¿Inviertes en capacitación y desarrollo de tu equipo?',
+          area: 'Talento',
+          question: '¿Tienes un programa de capacitación y desarrollo?',
           options: [
-            { value: 0, label: 'No invertimos en capacitación' },
+            { value: 0, label: 'No capacitamos al equipo' },
             { value: 25, label: 'Capacitación esporádica sin plan' },
-            { value: 50, label: 'Capacitación básica cuando hay necesidad' },
-            { value: 75, label: 'Plan anual de capacitación básico' },
-            { value: 100, label: 'Programa estructurado de desarrollo con presupuesto' }
+            { value: 50, label: 'Capacitaciones básicas ocasionales' },
+            { value: 75, label: 'Plan de capacitación anual' },
+            { value: 100, label: 'Programa estructurado con rutas de carrera' }
           ]
         },
         {
           id: 'q15',
-          area: 'RRHH',
-          question: '¿Qué tan dependiente es tu negocio de ti como dueño?',
+          area: 'Talento',
+          question: '¿Tu equipo conoce y está alineado con los objetivos de la empresa?',
           options: [
-            { value: 0, label: 'Todo depende de mí, no puede funcionar sin mí' },
-            { value: 25, label: 'Puedo ausentarme 1-2 días máximo' },
-            { value: 50, label: 'Puedo ausentarme 1 semana con supervisión' },
-            { value: 75, label: 'Funciona bien 2-3 semanas sin mí' },
-            { value: 100, label: 'Opera autónomamente, yo hago estrategia' }
+            { value: 0, label: 'No conocen los objetivos' },
+            { value: 25, label: 'Solo gerencia los conoce' },
+            { value: 50, label: 'Se comunicaron una vez' },
+            { value: 75, label: 'Se revisan trimestralmente' },
+            { value: 100, label: 'Todos los conocen y tienen objetivos individuales alineados' }
           ]
         }
+      ];
+
+      const industries = [
+        'Manufactura',
+        'Comercio al por menor',
+        'Comercio al por mayor',
+        'Servicios profesionales',
+        'Tecnología y software',
+        'Alimentos y bebidas',
+        'Construcción',
+        'Salud y bienestar',
+        'Educación',
+        'Turismo y hospitalidad',
+        'Logística y transporte',
+        'Instituciones Microfinancieras',
+        'Cooperativas',
+        'Otro'
       ];
 
       const calculateResults = () => {
@@ -264,7 +298,7 @@
           'Finanzas': [],
           'Operaciones': [],
           'Comercial': [],
-          'RRHH': []
+          'Talento': []
         };
 
         questions.forEach(q => {
@@ -276,155 +310,169 @@
         const areaAverages = {};
         Object.keys(areaScores).forEach(area => {
           const scores = areaScores[area];
-          areaAverages[area] = scores.length > 0 
+          areaAverages[area] = scores.length > 0
             ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
             : 0;
         });
 
-        const overallScore = Math.round(
-          Object.values(areaAverages).reduce((a, b) => a + b, 0) / Object.keys(areaAverages).length
-        );
+        const allScores = Object.values(areaAverages);
+        const overallScore = Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length);
 
         return { areaAverages, overallScore };
       };
 
       const identifyLeaks = (areaAverages) => {
-        const leaks = [];
-        
-        if (areaAverages['Finanzas'] < 60) {
-          leaks.push({
-            title: 'Ceguera Financiera',
-            description: 'Estás tomando decisiones sin datos reales de costos y rentabilidad',
-            impact: 'Pérdida estimada: 15-25% de utilidad potencial'
-          });
-        }
+        const leaksDb = {
+          'Estrategia': {
+            title: '🎯 Falta de Dirección Estratégica Clara',
+            description: 'Sin una estrategia definida, tu equipo trabaja sin rumbo. Cada quien interpreta "el éxito" a su manera.',
+            impact: 'Costo estimado: 20-30% de productividad perdida + decisiones desalineadas'
+          },
+          'Finanzas': {
+            title: '💰 Descontrol Financiero',
+            description: 'No sabes exactamente cuánto ganas o pierdes en cada venta. Estás vendiendo sin saber si es rentable.',
+            impact: 'Costo estimado: 15-25% del margen se pierde en ineficiencias no detectadas'
+          },
+          'Operaciones': {
+            title: '⚙️ Procesos Ineficientes o Inexistentes',
+            description: 'Todo depende de "quién lo haga". Sin procesos documentados, la calidad varía y los errores se repiten.',
+            impact: 'Costo estimado: 20-40% del tiempo se pierde en reprocesos y "apagar fuegos"'
+          },
+          'Comercial': {
+            title: '📊 Sistema de Ventas Improvisado',
+            description: 'Las ventas dependen del "talento" individual. No hay un sistema replicable que garantice resultados.',
+            impact: 'Costo estimado: 30-50% de oportunidades se pierden por falta de seguimiento'
+          },
+          'Talento': {
+            title: '👥 Rotación y Desalineación del Equipo',
+            description: 'Tu gente no sabe hacia dónde va la empresa. La rotación es alta y cada salida cuesta tiempo y dinero.',
+            impact: 'Costo estimado: 150-200% del salario anual por cada empleado que se va'
+          }
+        };
 
-        if (areaAverages['Operaciones'] < 60) {
-          leaks.push({
-            title: 'Caos Operativo',
-            description: 'Procesos manuales y reprocesos están consumiendo tiempo y dinero',
-            impact: 'Pérdida estimada: 20-30% de productividad'
-          });
-        }
+        const sortedAreas = Object.entries(areaAverages)
+          .sort(([, a], [, b]) => a - b)
+          .slice(0, 3)
+          .map(([area]) => leaksDb[area]);
 
-        if (areaAverages['Estrategia'] < 60) {
-          leaks.push({
-            title: 'Sin Rumbo Estratégico',
-            description: 'La falta de objetivos claros genera esfuerzos dispersos',
-            impact: 'Oportunidades de crecimiento desaprovechadas'
-          });
-        }
-
-        if (areaAverages['Comercial'] < 60) {
-          leaks.push({
-            title: 'Ventas Sin Estrategia',
-            description: 'Vendes sin conocer tu propuesta de valor ni rentabilidad real',
-            impact: 'Clientes no rentables consumiendo recursos'
-          });
-        }
-
-        if (areaAverages['RRHH'] < 60) {
-          leaks.push({
-            title: 'Talento Desperdiciado',
-            description: 'Personal sin perfiles claros ni capacitación estructurada',
-            impact: 'Alta rotación y baja productividad'
-          });
-        }
-
-        return leaks.slice(0, 3);
+        return sortedAreas;
       };
 
       const getMaturityLevel = (score) => {
-        if (score < 40) return { level: 'Inicial', color: 'text-red-600', bgColor: 'bg-red-100' };
-        if (score < 60) return { level: 'En Desarrollo', color: 'text-orange-600', bgColor: 'bg-orange-100' };
-        if (score < 75) return { level: 'Estructurado', color: 'text-yellow-600', bgColor: 'bg-yellow-100' };
-        if (score < 90) return { level: 'Avanzado', color: 'text-blue-600', bgColor: 'bg-blue-100' };
-        return { level: 'Excelencia', color: 'text-green-600', bgColor: 'bg-green-100' };
+        if (score >= 80) return { level: '🏆 LÍDER DE MERCADO', color: 'text-green-700', bgColor: 'bg-green-100' };
+        if (score >= 60) return { level: '📈 EN CRECIMIENTO', color: 'text-blue-700', bgColor: 'bg-blue-100' };
+        if (score >= 40) return { level: '⚠️ ESTANCADO', color: 'text-yellow-700', bgColor: 'bg-yellow-100' };
+        return { level: '🚨 CRÍTICO', color: 'text-red-700', bgColor: 'bg-red-100' };
       };
 
       const sendEmails = async () => {
+        setEmailSending(true);
         const { areaAverages, overallScore } = calculateResults();
         const leaks = identifyLeaks(areaAverages);
         const maturity = getMaturityLevel(overallScore);
 
-        const weakAreas = Object.entries(areaAverages)
-          .filter(([_, score]) => score < 60)
-          .map(([area, score]) => `${area}: ${score}/100`)
-          .join('\n');
-
-        const leaksText = leaks.map((leak, idx) => 
-          `${idx + 1}. ${leak.title}\n   ${leak.description}\n   ${leak.impact}`
-        ).join('\n\n');
-
-        const opportunityRange = userData.revenue === '0-5M' ? { min: '60,000', max: '150,000' } :
-                                userData.revenue === '5-20M' ? { min: '300,000', max: '800,000' } :
-                                userData.revenue === '20-50M' ? { min: '800,000', max: '2,000,000' } :
-                                { min: '2,000,000', max: '5,000,000' };
-
-        const priority = overallScore < 50 ? 'ALTA - Contactar en 24 horas' :
-                        overallScore < 70 ? 'MEDIA - Contactar en 48 horas' :
-                        'NORMAL - Contactar en 72 horas';
-
-        const recommendation = overallScore < 50 ? 'Cliente en etapa crítica. Necesita intervención urgente. Enfatizar ROI rápido.' :
-                              overallScore < 70 ? 'Cliente con bases pero sin estructura. Ideal para implementación completa.' :
-                              'Cliente maduro. Enfoque en optimización y crecimiento acelerado.';
-
         try {
-          // Email al cliente
-          await emailjs.send('service_ge68mlf', 'template_igyg8z2', {
+          console.log('📤 Iniciando envío de emails...');
+          
+          // Email para el cliente
+          const clientEmailParams = {
             to_email: userData.email,
-            user_email: userData.email,
-            user_name: userData.name,
+            to_name: userData.name,
             company_name: userData.company,
-            score: String(overallScore),
+            overall_score: overallScore,
             maturity_level: maturity.level,
-            leaks: leaksText,
-            opportunity_min: String(opportunityRange.min),
-            opportunity_max: String(opportunityRange.max),
-            roadmap: 'Ver reporte completo'
-          });
+            estrategia_score: areaAverages['Estrategia'],
+            finanzas_score: areaAverages['Finanzas'],
+            operaciones_score: areaAverages['Operaciones'],
+            comercial_score: areaAverages['Comercial'],
+            talento_score: areaAverages['Talento'],
+            leak_1: leaks[0]?.title || '',
+            leak_2: leaks[1]?.title || '',
+            leak_3: leaks[2]?.title || '',
+            reply_to: 'contacto@escalaestexito.com.mx'
+          };
 
-          // Email interno
-          await emailjs.send('service_ge68mlf', 'template_t271ajb', {
-            user_name: userData.name || 'No proporcionado',
-            company_name: userData.company || 'No proporcionada',
-            user_email: userData.email || 'No proporcionado',
-            user_phone: userData.phone || 'No proporcionado',
-            industry: userData.industry || 'No especificada',
-            revenue: userData.revenue || 'No especificada',
-            employees: userData.employees || 'No especificado',
-            score: String(overallScore),
+          console.log('📧 Enviando email al cliente...', userData.email);
+          const clientResponse = await emailjs.send(
+            'service_qcuekol',
+            'template_client',
+            clientEmailParams
+          );
+          console.log('✅ Email al cliente enviado:', clientResponse);
+
+          // Email para Escala (notificación interna)
+          const adminEmailParams = {
+            to_email: 'contacto@escalaestexito.com.mx',
+            client_name: userData.name,
+            client_email: userData.email,
+            client_phone: userData.phone,
+            company_name: userData.company,
+            industry: userData.industry,
+            revenue: userData.revenue,
+            employees: userData.employees,
+            overall_score: overallScore,
             maturity_level: maturity.level,
-            weak_areas: weakAreas || 'Todas en buen estado',
-            priority: priority,
-            recommendation: recommendation,
-            submission_date: new Date().toLocaleString('es-MX')
-          });
+            estrategia_score: areaAverages['Estrategia'],
+            finanzas_score: areaAverages['Finanzas'],
+            operaciones_score: areaAverages['Operaciones'],
+            comercial_score: areaAverages['Comercial'],
+            talento_score: areaAverages['Talento']
+          };
+
+          console.log('📧 Enviando notificación a Escala...');
+          const adminResponse = await emailjs.send(
+            'service_qcuekol',
+            'template_admin',
+            adminEmailParams
+          );
+          console.log('✅ Notificación a Escala enviada:', adminResponse);
 
           setEmailSent(true);
-          return true;
+          console.log('✅ Todos los emails enviados correctamente');
         } catch (error) {
-          console.error('Error:', error);
-          return false;
+          console.error('❌ Error al enviar emails:', error);
+          alert('Hubo un problema al enviar los emails. Por favor contacta a contacto@escalaestexito.com.mx');
+        } finally {
+          setEmailSending(false);
         }
       };
 
-      const handleNext = async () => {
+      const handleStartAssessment = () => {
+        const requiredFields = ['name', 'company', 'industry', 'email'];
+        const isValid = requiredFields.every(field => userData[field].trim() !== '');
+
+        if (!isValid) {
+          alert('Por favor completa todos los campos obligatorios');
+          return;
+        }
+
+        if (!privacyAccepted) {
+          alert('Debes aceptar el aviso de privacidad para continuar');
+          return;
+        }
+
+        setStage('questions');
+      };
+
+      const handleAnswer = (value) => {
+        setAnswers({ ...answers, [questions[currentQuestion].id]: value });
+      };
+
+      const handleNext = () => {
         if (currentQuestion < questions.length - 1) {
           setCurrentQuestion(currentQuestion + 1);
         } else {
           setStage('results');
-          await sendEmails();
+          sendEmails();
         }
       };
 
-      const startDiagnostic = () => {
-        if (userData.name && userData.company && userData.email && privacyAccepted) {
-          setStage('questionnaire');
-        }
+      const handleJumpToQuestion = (index) => {
+        setCurrentQuestion(index);
+        setShowAnswersSummary(false);
       };
 
-      // RENDER LOGIC
+      // Welcome stage
       if (stage === 'welcome') {
         return (
           <div className="min-h-screen gradient-bg p-4">
@@ -433,110 +481,173 @@
                 <div className="logo-container mb-6">
                   <img 
                     src="https://i.postimg.cc/7Y5H6jvw/Disen-o-sin-ti-tulo-1.png" 
-                    alt="Escala - Estrategias para el Éxito" 
+                    alt="Escala Logo" 
                     className="w-full h-auto"
                   />
                 </div>
-                <h2 className="text-3xl font-bold mb-2 text-blue-900">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-blue-900">
                   Escala IQ™
-                </h2>
-                <p className="text-lg text-gray-600">Diagnóstico Estratégico Inteligente</p>
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-600 mb-2">
+                  Diagnóstico Estratégico Inteligente
+                </p>
+                <p className="text-lg text-gray-500">
+                  Descubre las fugas de capital que están frenando tu negocio
+                </p>
               </div>
 
               <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-                <h2 className="text-2xl font-bold mb-4 text-blue-900">
-                  ¿Atrapado en el día a día de tu Empresa?
+                <h2 className="text-2xl font-bold mb-6 text-blue-900">
+                  ¿Por qué tu negocio no escala como debería?
                 </h2>
-                <p className="text-lg text-gray-700 mb-6">
-                  Descubre en <strong>10 minutos</strong> por qué tu negocio no escala y obtén un mapa claro para transformar tu operación.
-                </p>
+                
+                <div className="space-y-4 mb-8 text-gray-700">
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">💸</div>
+                    <div>
+                      <strong>Fugas de Capital invisibles:</strong> El 78% de las PyMEs pierde entre el 20-40% de su potencial de crecimiento por problemas que no detectan.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">🎯</div>
+                    <div>
+                      <strong>15 preguntas estratégicas:</strong> En 8 minutos identificarás exactamente dónde están tus principales obstáculos.
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">📊</div>
+                    <div>
+                      <strong>Reporte personalizado:</strong> Recibirás tu Escala IQ Score y las 3 acciones prioritarias para tu negocio.
+                    </div>
+                  </div>
+                </div>
 
-                <div className="space-y-4">
+                <form className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="Tu Nombre Completo *"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      value={userData.name}
-                      onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Nombre de tu Empresa *"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      value={userData.company}
-                      onChange={(e) => setUserData({ ...userData, company: e.target.value })}
-                    />
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Nombre completo *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={userData.name}
+                        onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                        placeholder="Juan Pérez"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Empresa *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={userData.company}
+                        onChange={(e) => setUserData({ ...userData, company: e.target.value })}
+                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                        placeholder="Mi Empresa S.A."
+                      />
+                    </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    <select
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      value={userData.industry}
-                      onChange={(e) => setUserData({ ...userData, industry: e.target.value })}
-                    >
-                      <option value="">Selecciona tu Industria</option>
-                      <option value="servicios">Servicios Profesionales</option>
-                      <option value="ong">ONG / Asociación Civil</option>
-                      <option value="retail">Retail / Comercio</option>
-                      <option value="manufactura">Manufactura</option>
-                      <option value="restaurante">Restaurante / Alimentos</option>
-                      <option value="otro">Otro</option>
-                    </select>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Industria *
+                      </label>
+                      <select
+                        required
+                        value={userData.industry}
+                        onChange={(e) => setUserData({ ...userData, industry: e.target.value })}
+                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                      >
+                        <option value="">Selecciona tu industria</option>
+                        {industries.map(industry => (
+                          <option key={industry} value={industry}>{industry}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                    <select
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      value={userData.revenue}
-                      onChange={(e) => setUserData({ ...userData, revenue: e.target.value })}
-                    >
-                      <option value="">Facturación Anual (MXN)</option>
-                      <option value="0-5M">Menos de $5M</option>
-                      <option value="5-20M">$5M - $20M</option>
-                      <option value="20-50M">$20M - $50M</option>
-                      <option value="50-100M">$50M - $100M</option>
-                    </select>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Ingresos anuales aproximados
+                      </label>
+                      <select
+                        value={userData.revenue}
+                        onChange={(e) => setUserData({ ...userData, revenue: e.target.value })}
+                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                      >
+                        <option value="">Selecciona un rango</option>
+                        <option value="Menos de $1M">Menos de $1M MXN</option>
+                        <option value="$1M - $5M">$1M - $5M MXN</option>
+                        <option value="$5M - $20M">$5M - $20M MXN</option>
+                        <option value="$20M - $50M">$20M - $50M MXN</option>
+                        <option value="Más de $50M">Más de $50M MXN</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4">
-                    <select
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      value={userData.employees}
-                      onChange={(e) => setUserData({ ...userData, employees: e.target.value })}
-                    >
-                      <option value="">Número de Empleados</option>
-                      <option value="1-20">1 - 20</option>
-                      <option value="21-50">21 - 50</option>
-                      <option value="51-100">51 - 100</option>
-                      <option value="100+">Más de 100</option>
-                    </select>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Número de empleados
+                      </label>
+                      <select
+                        value={userData.employees}
+                        onChange={(e) => setUserData({ ...userData, employees: e.target.value })}
+                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                      >
+                        <option value="">Selecciona un rango</option>
+                        <option value="1-5">1-5 empleados</option>
+                        <option value="6-10">6-10 empleados</option>
+                        <option value="11-25">11-25 empleados</option>
+                        <option value="26-50">26-50 empleados</option>
+                        <option value="51-100">51-100 empleados</option>
+                        <option value="Más de 100">Más de 100 empleados</option>
+                      </select>
+                    </div>
 
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={userData.email}
+                        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                        placeholder="tu@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      WhatsApp (opcional)
+                    </label>
                     <input
-                      type="email"
-                      placeholder="Email *"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      value={userData.email}
-                      onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                      type="tel"
+                      value={userData.phone}
+                      onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                      className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-900 focus:outline-none"
+                      placeholder="+52 55 1234 5678"
                     />
                   </div>
 
-                  <input
-                    type="tel"
-                    placeholder="Teléfono (WhatsApp)"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                    value={userData.phone}
-                    onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
-                  />
-
-                  <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-3 pt-4 border-t">
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={privacyAccepted}
                         onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                        className="mt-1 w-5 h-5"
+                        className="mt-1"
                       />
-                      <span className="text-sm text-gray-700">
-                        <strong>*Acepto el Aviso de Privacidad.</strong> Entiendo que mis datos serán utilizados exclusivamente para elaborar mi diagnóstico estratégico.
+                      <span className="text-sm text-gray-600">
+                        Acepto el <a href="#" className="text-blue-900 underline">aviso de privacidad</a> y autorizo el uso de mis datos para recibir mi diagnóstico. *
                       </span>
                     </label>
 
@@ -545,98 +656,158 @@
                         type="checkbox"
                         checked={marketingAccepted}
                         onChange={(e) => setMarketingAccepted(e.target.checked)}
-                        className="mt-1 w-5 h-5"
+                        className="mt-1"
                       />
-                      <span className="text-sm text-gray-700">
-                        Autorizo a ESCALA a enviarme contenido de valor (infográficos, videos, artículos).
+                      <span className="text-sm text-gray-600">
+                        Deseo recibir contenido de valor y actualizaciones de Escala (opcional)
                       </span>
                     </label>
                   </div>
 
                   <button
-                    onClick={startDiagnostic}
-                    disabled={!userData.name || !userData.company || !userData.email || !privacyAccepted}
-                    className="w-full py-4 bg-blue-900 text-white font-bold rounded-lg disabled:opacity-50"
+                    type="button"
+                    onClick={handleStartAssessment}
+                    className="w-full bg-blue-900 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-800 transition-all"
                   >
-                    Iniciar Diagnóstico Gratuito →
+                    Iniciar Diagnóstico (8 minutos) →
                   </button>
-                </div>
+                </form>
               </div>
 
-              <div className="text-center text-gray-600">
-                <p className="text-sm">📧 contacto@escalaestexito.com.mx</p>
-                <p className="text-sm">📱 +52 55 98 26 7884</p>
+              <div className="text-center text-gray-600 text-sm">
+                <p>🔒 Tus datos están protegidos y solo se usarán para enviarte tu diagnóstico</p>
               </div>
             </div>
           </div>
         );
       }
 
-      // Questionnaire stage
-      if (stage === 'questionnaire') {
+      // Questions stage
+      if (stage === 'questions') {
         const progress = ((currentQuestion + 1) / questions.length) * 100;
         const currentQ = questions[currentQuestion];
         const isAnswered = answers[currentQ.id] !== undefined;
+        const answeredCount = Object.keys(answers).length;
 
         return (
           <div className="min-h-screen gradient-bg p-4">
-            <div className="max-w-3xl mx-auto py-8">
+            <div className="max-w-4xl mx-auto py-8">
+              {/* Header con progreso */}
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-semibold text-blue-900">
+                  <span className="text-sm font-semibold text-gray-600">
                     Pregunta {currentQuestion + 1} de {questions.length}
                   </span>
-                  <span className="text-sm text-gray-600">{Math.round(progress)}% completado</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div className="h-3 bg-blue-900 rounded-full transition-all" style={{ width: `${progress}%` }} />
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <div className="mb-2">
-                  <span className="inline-block px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-900">
-                    {currentQ.area}
+                  <span className="text-sm font-semibold text-blue-900">
+                    {answeredCount}/{questions.length} completadas
                   </span>
                 </div>
-
-                <h2 className="text-2xl font-bold mb-8 text-blue-900">
-                  {currentQ.question}
-                </h2>
-
-                <div className="space-y-3">
-                  {currentQ.options.map((option, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setAnswers({ ...answers, [currentQ.id]: option.value })}
-                      className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                        answers[currentQ.id] === option.value
-                          ? 'border-blue-900 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
-                    >
-                      <span className="font-medium text-gray-700">{option.label}</span>
-                    </button>
-                  ))}
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div
+                    className="bg-blue-900 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-between mt-6">
-                <button
-                  onClick={() => setCurrentQuestion(currentQuestion - 1)}
-                  disabled={currentQuestion === 0}
-                  className="px-6 py-3 text-gray-600 font-semibold rounded-lg border-2 border-gray-300 disabled:opacity-50"
-                >
-                  ← Anterior
-                </button>
+              {/* Botón para ver/editar respuestas anteriores */}
+              {answeredCount > 0 && (
+                <div className="mb-6">
+                  <button
+                    onClick={() => setShowAnswersSummary(!showAnswersSummary)}
+                    className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-all text-blue-900 font-semibold"
+                  >
+                    <span>📋</span>
+                    <span>{showAnswersSummary ? 'Ocultar' : 'Ver/Editar'} respuestas anteriores</span>
+                  </button>
+                </div>
+              )}
 
-                <button
-                  onClick={handleNext}
-                  disabled={!isAnswered}
-                  className="px-8 py-3 bg-blue-900 text-white font-bold rounded-lg disabled:opacity-50"
-                >
-                  {currentQuestion === questions.length - 1 ? 'Ver Resultados' : 'Siguiente'} →
-                </button>
+              {/* Resumen de respuestas (expandible) */}
+              {showAnswersSummary && (
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-6 answers-summary">
+                  <h3 className="font-bold text-lg mb-4 text-blue-900">Tus respuestas hasta ahora:</h3>
+                  <div className="space-y-2">
+                    {questions.map((q, idx) => {
+                      const answer = answers[q.id];
+                      if (answer === undefined) return null;
+                      
+                      const selectedOption = q.options.find(opt => opt.value === answer);
+                      
+                      return (
+                        <div
+                          key={q.id}
+                          onClick={() => handleJumpToQuestion(idx)}
+                          className="answer-item p-3 border rounded-lg cursor-pointer flex justify-between items-start"
+                        >
+                          <div className="flex-1">
+                            <div className="text-sm font-semibold text-gray-700 mb-1">
+                              {idx + 1}. {q.question}
+                            </div>
+                            <div className="text-sm text-blue-900">
+                              ✓ {selectedOption?.label}
+                            </div>
+                          </div>
+                          <button className="text-blue-900 hover:text-blue-700 font-semibold text-sm">
+                            Editar →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Pregunta actual */}
+              <div className="bg-white rounded-xl shadow-lg p-8">
+                <div className="mb-6">
+                  <div className="inline-block px-4 py-2 bg-blue-100 text-blue-900 rounded-full text-sm font-bold mb-4">
+                    {currentQ.area}
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                    {currentQ.question}
+                  </h2>
+
+                  <div className="space-y-3">
+                    {currentQ.options.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleAnswer(option.value)}
+                        className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                          answers[currentQ.id] === option.value
+                            ? 'border-blue-900 bg-blue-50'
+                            : 'border-gray-200 hover:border-blue-300'
+                        }`}
+                      >
+                        <span className="font-medium text-gray-700">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={() => {
+                      setShowAnswersSummary(false);
+                      setCurrentQuestion(currentQuestion - 1);
+                    }}
+                    disabled={currentQuestion === 0}
+                    className="px-6 py-3 text-gray-600 font-semibold rounded-lg border-2 border-gray-300 disabled:opacity-50 hover:bg-gray-50 transition-all"
+                  >
+                    ← Anterior
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowAnswersSummary(false);
+                      handleNext();
+                    }}
+                    disabled={!isAnswered}
+                    className="px-8 py-3 bg-blue-900 text-white font-bold rounded-lg disabled:opacity-50 hover:bg-blue-800 transition-all"
+                  >
+                    {currentQuestion === questions.length - 1 ? 'Ver Resultados' : 'Siguiente'} →
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -746,7 +917,9 @@
                 </button>
 
                 <p className="text-sm mt-4 opacity-90">
-                  {emailSent ? '✅ Reporte enviado a ' + userData.email : '📧 Recibirás tu reporte en ' + userData.email}
+                  {emailSending && '⏳ Enviando tu reporte...'}
+                  {emailSent && !emailSending && '✅ Reporte enviado a ' + userData.email}
+                  {!emailSending && !emailSent && '📧 Recibirás tu reporte en ' + userData.email}
                 </p>
               </div>
 
