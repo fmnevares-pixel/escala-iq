@@ -80,7 +80,7 @@
       // Initialize EmailJS
       useEffect(() => {
         if (typeof emailjs !== 'undefined') {
-          emailjs.init('s5nppWZkj52lmF4');
+          emailjs.init('s5nppWZkCwj52ImF4');
           console.log('✅ EmailJS inicializado correctamente');
         } else {
           console.error('❌ EmailJS no se cargó correctamente');
@@ -373,11 +373,16 @@
 
         try {
           console.log('📤 Iniciando envío de emails...');
+          console.log('🔍 Configuración:', {
+            serviceId: 'Service_qcuekol',
+            templateId: 'template_client',
+            email: userData.email
+          });
           
           // Email para el cliente
           const clientEmailParams = {
             to_email: userData.email,
-            to_name: userData.name,
+            client_name: userData.name,
             company_name: userData.company,
             overall_score: overallScore,
             maturity_level: maturity.level,
@@ -392,9 +397,11 @@
             reply_to: 'contacto@escalaestexito.com.mx'
           };
 
+          console.log('📧 Parámetros del email:', clientEmailParams);
           console.log('📧 Enviando email al cliente...', userData.email);
+          
           const clientResponse = await emailjs.send(
-            'service_qcuekol',
+            'Service_qcuekol',
             'template_client',
             clientEmailParams
           );
@@ -405,11 +412,11 @@
             to_email: 'contacto@escalaestexito.com.mx',
             client_name: userData.name,
             client_email: userData.email,
-            client_phone: userData.phone,
+            client_phone: userData.phone || 'No proporcionado',
             company_name: userData.company,
             industry: userData.industry,
-            revenue: userData.revenue,
-            employees: userData.employees,
+            revenue: userData.revenue || 'No especificado',
+            employees: userData.employees || 'No especificado',
             overall_score: overallScore,
             maturity_level: maturity.level,
             estrategia_score: areaAverages['Estrategia'],
@@ -420,8 +427,10 @@
           };
 
           console.log('📧 Enviando notificación a Escala...');
+          console.log('📧 Parámetros admin:', adminEmailParams);
+          
           const adminResponse = await emailjs.send(
-            'service_qcuekol',
+            'Service_qcuekol',
             'template_admin',
             adminEmailParams
           );
@@ -430,8 +439,11 @@
           setEmailSent(true);
           console.log('✅ Todos los emails enviados correctamente');
         } catch (error) {
-          console.error('❌ Error al enviar emails:', error);
-          alert('Hubo un problema al enviar los emails. Por favor contacta a contacto@escalaestexito.com.mx');
+          console.error('❌ Error completo:', error);
+          console.error('❌ Error status:', error.status);
+          console.error('❌ Error text:', error.text);
+          console.error('❌ Error message:', error.message);
+          alert('Hubo un problema al enviar los emails. Revisa la consola para más detalles (F12).');
         } finally {
           setEmailSending(false);
         }
